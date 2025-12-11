@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  pocketbase:
+    image: ghcr.io/pocketbase/pocketbase:0.22.12
+    command: ["serve", "--http=0.0.0.0:8090", "--dir=/pb_data"]
+    ports:
+      - "8090:8090"
+    volumes:
+      - pocketbase_data:/pb_data
+
+  backend:
+    build: ./backend
+    env_file:
+      - backend/.env
+    depends_on:
+      - pocketbase
+    environment:
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - frontend/.env
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-http://backend:8080}
+    ports:
+      - "3000:3000"
+
+volumes:
+  pocketbase_data:
+    driver: local

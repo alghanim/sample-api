@@ -63,6 +63,27 @@ npm run dev
 
 The homepage (`/`) is a server component that fetches live events. If the API is unavailable it falls back to seeded concept events to preserve the marketing experience.
 
+## One-command stack (Docker Compose)
+
+Use the provided Dockerfiles + compose file when you want a reproducible stack that runs PocketBase, the Echo API, and the Next.js frontend together.
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+# set KEYCLOAK_* secrets and point POCKETBASE_BASE_URL to http://pocketbase:8090 for container-to-container comms
+# keep POCKETBASE_FILES_BASE_URL pointing to http://localhost:8090 so browsers can load media
+cd /workspace
+docker compose up --build
+```
+
+What you get:
+
+- `http://localhost:8090` → PocketBase admin UI/storage (data persisted in the `pocketbase_data` volume)
+- `http://localhost:8080` → Echo API (still protected by Keycloak for POST `/api/events`)
+- `http://localhost:3000` → Thunder marketing experience
+
+Stop the stack with `docker compose down` (add `-v` if you also want to wipe the PocketBase volume).
+
 ## Development Tips
 
 - Run `go test ./...` inside `backend` to make sure the API compiles.
